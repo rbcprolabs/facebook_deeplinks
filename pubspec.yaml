@@ -1,0 +1,21 @@
+name: facebook_deeplinks
+description: A flutter plugin to get facebook deeplinks and transferring them to the flutter application.
+version: 0.0.1
+author:
+homepage:
+
+environment:
+  sdk: ">=2.1.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  plugin:
+    androidPackage: ru.proteye.facebook_deeplinks
+    pluginClass: FacebookDeeplinksPlugin
