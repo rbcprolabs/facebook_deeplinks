@@ -3,13 +3,20 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 
 class FacebookDeeplinks {
-  static const MethodChannel _channel =
+  static const MethodChannel _methodChannel =
       const MethodChannel('ru.proteye/facebook_deeplinks/channel');
-  final EventChannel _stream =
+  final EventChannel _eventChannel =
       const EventChannel('ru.proteye/facebook_deeplinks/events');
 
-  static Future<String> get platformVersion async {
-    final String version = await _channel.invokeMethod('getPlatformVersion');
-    return version;
+  Future<dynamic> initFacebookDeeplinks() async {
+    try {
+      return _methodChannel.invokeMethod('initFacebookDeeplinks');
+    } on PlatformException catch (e) {
+      return "Failed to Invoke: '${e.message}'.";
+    }
+  }
+
+  Stream<dynamic> receiveBroadcastStream() {
+    return _eventChannel.receiveBroadcastStream();
   }
 }
