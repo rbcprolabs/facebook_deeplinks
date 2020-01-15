@@ -39,8 +39,4 @@ class FacebookDeeplinks {
 
     return _onDeeplinkReceived;
   }
-
-  Stream<dynamic> receiveBroadcastStream() {
-    return _eventChannel.receiveBroadcastStream();
-  }
 }
