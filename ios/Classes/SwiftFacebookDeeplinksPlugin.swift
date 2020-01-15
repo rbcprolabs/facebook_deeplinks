@@ -20,11 +20,9 @@ public class SwiftFacebookDeeplinksPlugin: NSObject, FlutterPlugin, FlutterStrea
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    NSLog("\nAPP START!!!");
     Settings.isAutoInitEnabled = true
     ApplicationDelegate.initializeSDK(nil)
     AppLinkUtility.fetchDeferredAppLink { (url, error) in
-      NSLog("\nFETCH URL");
       if let error = error {
         print("Received error while fetching deferred app link %@", error)
       }
@@ -41,7 +39,6 @@ public class SwiftFacebookDeeplinksPlugin: NSObject, FlutterPlugin, FlutterStrea
   }
 
   public func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-    NSLog("\nEVENT URL %@", url.absoluteString);
     return handleLink(url.absoluteString)
   }
 
@@ -65,35 +62,6 @@ public class SwiftFacebookDeeplinksPlugin: NSObject, FlutterPlugin, FlutterStrea
   }
   
   private func handleLink(_ link: String) -> Bool {
-    guard let eventSink = eventSink else {
-      queuedLinks.append(link)
-      return false
-    }
-    eventSink(link)
-    return true
-  }
-}
-
-private class LinkStreamHandler:NSObject, FlutterStreamHandler {
-  
-  var eventSink: FlutterEventSink?
-  
-  // links will be added to this queue until the sink is ready to process them
-  var queuedLinks = [String]()
-  
-  func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
-    self.eventSink = events
-    queuedLinks.forEach({ events($0) })
-    queuedLinks.removeAll()
-    return nil
-  }
-  
-  func onCancel(withArguments arguments: Any?) -> FlutterError? {
-    self.eventSink = nil
-    return nil
-  }
-  
-  func handleLink(_ link: String) -> Bool {
     guard let eventSink = eventSink else {
       queuedLinks.append(link)
       return false
