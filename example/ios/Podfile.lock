@@ -1,0 +1,48 @@
+PODS:
+  - facebook_deeplinks (0.0.1):
+    - FacebookSDK (~> 5.0.0)
+    - Flutter
+  - FacebookSDK (5.0.2):
+    - FacebookSDK/CoreKit (= 5.0.2)
+    - FacebookSDK/MarketingKit (= 5.0.2)
+  - FacebookSDK/CoreKit (5.0.2):
+    - FBSDKCoreKit (~> 5.0)
+  - FacebookSDK/MarketingKit (5.0.2):
+    - FacebookSDK/CoreKit
+    - FBSDKMarketingKit (~> 5.0)
+  - FBSDKCoreKit (5.13.1):
+    - FBSDKCoreKit/Basics (= 5.13.1)
+    - FBSDKCoreKit/Core (= 5.13.1)
+  - FBSDKCoreKit/Basics (5.13.1)
+  - FBSDKCoreKit/Core (5.13.1):
+    - FBSDKCoreKit/Basics
+  - FBSDKMarketingKit (5.14.0):
+    - FBSDKCoreKit (~> 5.5)
+  - Flutter (1.0.0)
+
+DEPENDENCIES:
+  - facebook_deeplinks (from `.symlinks/plugins/facebook_deeplinks/ios`)
+  - Flutter (from `Flutter`)
+
+SPEC REPOS:
+  trunk:
+    - FacebookSDK
+    - FBSDKCoreKit
+    - FBSDKMarketingKit
+
+EXTERNAL SOURCES:
+  facebook_deeplinks:
+    :path: ".symlinks/plugins/facebook_deeplinks/ios"
+  Flutter:
+    :path: Flutter
+
+SPEC CHECKSUMS:
+  facebook_deeplinks: 922424520465b900aa2e876257b50b42025f4d09
+  FacebookSDK: 94a2aee31c90d6bd32069ccbd7d830cb11438153
+  FBSDKCoreKit: 8fb98209109fb684937f05d534305edb18c20207
+  FBSDKMarketingKit: b9dd220b38cc613c71d3eb626cd60bc8e938fbb4
+  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+
+PODFILE CHECKSUM: 1b66dae606f75376c5f2135a8290850eeb09ae83
+
+COCOAPODS: 1.8.4
