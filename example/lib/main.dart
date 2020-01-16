@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:facebook_deeplinks/facebook_deeplinks.dart';
 
-// Example deeplink: fb1900783610055777://test
+// Example deeplink: fb1900783610066589://test
 
 void main() => runApp(MyApp());
 
@@ -46,7 +46,6 @@ class _MyAppState extends State<MyApp> {
               RaisedButton(
                 child: Text('GET DEEPLINK'),
                 onPressed: () async {
-                  print('GET DEEPLINK!');
                   var deeplinkUrl =
                       await FacebookDeeplinks().initFacebookDeeplinks();
                   _onRedirected(deeplinkUrl);
@@ -60,7 +59,6 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _onRedirected(String uri) {
-    print('URI: $uri');
     setState(() {
       _deeplinkUrl = uri;
     });

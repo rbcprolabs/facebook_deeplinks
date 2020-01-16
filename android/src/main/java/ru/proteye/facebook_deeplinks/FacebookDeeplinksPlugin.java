@@ -3,10 +3,7 @@ package ru.proteye.facebook_deeplinks;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
@@ -70,26 +67,7 @@ public class FacebookDeeplinksPlugin implements FlutterPlugin, MethodCallHandler
     eventChannel.setStreamHandler(this);
   }
 
-  // private void initFacebook() {
-  //   Log.d("FacebookDeeplinks", "initFacebook!!!");
-  //   FacebookSdk.setAutoInitEnabled(true);
-  //   FacebookSdk.fullyInitialize();
-  //   AppLinkData.fetchDeferredAppLinkData(context,
-  //     new AppLinkData.CompletionHandler() {
-  //       @Override
-  //       public void onDeferredAppLinkDataFetched(AppLinkData appLinkData) {
-  //         if (appLinkData == null) {
-  //           url = "EMPTY appLinkData!";
-  //           return;
-  //         }
-  //         url = appLinkData.getTargetUri().toString();
-  //       }
-  //     }
-  //   );
-  // }
-
   private void initFacebookAppLink(@NonNull Result result) {
-    Log.d("FacebookDeeplinks", "initFacebookAppLink!!!");
     final Result resultDelegate = result;
     final Handler mainHandler = new Handler(context.getMainLooper());
 
@@ -100,14 +78,6 @@ public class FacebookDeeplinksPlugin implements FlutterPlugin, MethodCallHandler
         @Override
         public void onDeferredAppLinkDataFetched(AppLinkData appLinkData) {
           if (appLinkData == null) {
-            Runnable myRunnable = new Runnable() {
-              @Override
-              public void run() {
-                if(resultDelegate!=null)
-                  resultDelegate.success("EMPTY appLinkData!");
-              }
-            };
-            mainHandler.post(myRunnable);
             return;
           }
 
@@ -115,8 +85,9 @@ public class FacebookDeeplinksPlugin implements FlutterPlugin, MethodCallHandler
           Runnable myRunnable = new Runnable() {
             @Override
             public void run() {
-              if(resultDelegate!=null)
+              if (resultDelegate != null) {
                 resultDelegate.success(url);
+              }
             }
           };
           mainHandler.post(myRunnable);
@@ -146,15 +117,10 @@ public class FacebookDeeplinksPlugin implements FlutterPlugin, MethodCallHandler
 
   @Override
   public boolean onNewIntent(Intent intent) {
-    Log.d("FacebookDeeplinks", "onNewIntent");
-    Log.d("FacebookDeeplinks", intent.getAction());
-    if (linksReceiver != null) {
-      linksReceiver.onReceive(context, intent);
-    }
     if (intent.getAction() == Intent.ACTION_VIEW && linksReceiver != null) {
       linksReceiver.onReceive(context, intent);
     }
-    return true;
+    return false;
   }
 
   private BroadcastReceiver createChangeReceiver(final EventSink events) {
