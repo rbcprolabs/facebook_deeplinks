@@ -46,6 +46,7 @@ class _MyAppState extends State<MyApp> {
               RaisedButton(
                 child: Text('GET DEEPLINK'),
                 onPressed: () async {
+                  print('GET DEEPLINK!');
                   var deeplinkUrl =
                       await FacebookDeeplinks().initFacebookDeeplinks();
                   _onRedirected(deeplinkUrl);

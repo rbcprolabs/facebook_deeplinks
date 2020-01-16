@@ -5,9 +5,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
+import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.EventChannel.EventSink;
 import io.flutter.plugin.common.EventChannel.StreamHandler;
@@ -24,18 +27,24 @@ import com.facebook.applinks.AppLinkData;
 public class FacebookDeeplinksPlugin implements FlutterPlugin, MethodCallHandler, StreamHandler, PluginRegistry.NewIntentListener {
   private static final String MESSAGES_CHANNEL = "ru.proteye/facebook_deeplinks/channel";
   private static final String EVENTS_CHANNEL = "ru.proteye/facebook_deeplinks/events";
+
+  private MethodChannel methodChannel;
+  private EventChannel eventChannel;
   private BroadcastReceiver linksReceiver;
-  private String url;
   private Context context;
+  private String url;
 
   @Override
   public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
-    FacebookDeeplinksPlugin instance = new FacebookDeeplinksPlugin();
-    final MethodChannel channel = new MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), MESSAGES_CHANNEL);
-    channel.setMethodCallHandler(instance);
-    final EventChannel streamChannel = new EventChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), EVENTS_CHANNEL);
-    streamChannel.setStreamHandler(instance);
-    // init(flutterPluginBinding.getApplicationContext());
+    setupChannels(flutterPluginBinding.getFlutterEngine().getDartExecutor(), flutterPluginBinding.getApplicationContext());
+  }
+
+  @Override
+  public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+    methodChannel.setMethodCallHandler(null);
+    eventChannel.setStreamHandler(null);
+    methodChannel = null;
+    eventChannel = null;
   }
 
   // This static function is optional and equivalent to onAttachedToEngine. It supports the old
@@ -48,27 +57,69 @@ public class FacebookDeeplinksPlugin implements FlutterPlugin, MethodCallHandler
   // depending on the user's project. onAttachedToEngine or registerWith must both be defined
   // in the same class.
   public static void registerWith(Registrar registrar) {
-    // Detect if we've been launched in background
-    if (registrar.activity() == null) {
-      return;
-    }
-    FacebookDeeplinksPlugin instance = new FacebookDeeplinksPlugin();
-    final MethodChannel channel = new MethodChannel(registrar.messenger(), MESSAGES_CHANNEL);
-    channel.setMethodCallHandler(instance);
-    final EventChannel streamChannel = new EventChannel(registrar.messenger(), EVENTS_CHANNEL);
-    streamChannel.setStreamHandler(instance);
-    // init(registrar.activeContext());
+    FacebookDeeplinksPlugin plugin = new FacebookDeeplinksPlugin();
+    plugin.setupChannels(registrar.messenger(), registrar.context());
   }
 
-  private void init(Context ctx) {
-    context = ctx;
+  private void setupChannels(BinaryMessenger messenger, Context context) {
+    this.context = context;
+    methodChannel = new MethodChannel(messenger, MESSAGES_CHANNEL);
+    methodChannel.setMethodCallHandler(this);
+
+    eventChannel = new EventChannel(messenger, EVENTS_CHANNEL);
+    eventChannel.setStreamHandler(this);
+  }
+
+  // private void initFacebook() {
+  //   Log.d("FacebookDeeplinks", "initFacebook!!!");
+  //   FacebookSdk.setAutoInitEnabled(true);
+  //   FacebookSdk.fullyInitialize();
+  //   AppLinkData.fetchDeferredAppLinkData(context,
+  //     new AppLinkData.CompletionHandler() {
+  //       @Override
+  //       public void onDeferredAppLinkDataFetched(AppLinkData appLinkData) {
+  //         if (appLinkData == null) {
+  //           url = "EMPTY appLinkData!";
+  //           return;
+  //         }
+  //         url = appLinkData.getTargetUri().toString();
+  //       }
+  //     }
+  //   );
+  // }
+
+  private void initFacebookAppLink(@NonNull Result result) {
+    Log.d("FacebookDeeplinks", "initFacebookAppLink!!!");
+    final Result resultDelegate = result;
+    final Handler mainHandler = new Handler(context.getMainLooper());
+
     FacebookSdk.setAutoInitEnabled(true);
     FacebookSdk.fullyInitialize();
     AppLinkData.fetchDeferredAppLinkData(context, 
       new AppLinkData.CompletionHandler() {
         @Override
         public void onDeferredAppLinkDataFetched(AppLinkData appLinkData) {
-          url = appLinkData.getTargetUri().getPath();
+          if (appLinkData == null) {
+            Runnable myRunnable = new Runnable() {
+              @Override
+              public void run() {
+                if(resultDelegate!=null)
+                  resultDelegate.success("EMPTY appLinkData!");
+              }
+            };
+            mainHandler.post(myRunnable);
+            return;
+          }
+
+          url = appLinkData.getTargetUri().toString();
+          Runnable myRunnable = new Runnable() {
+            @Override
+            public void run() {
+              if(resultDelegate!=null)
+                resultDelegate.success(url);
+            }
+          };
+          mainHandler.post(myRunnable);
         }
       }
     );
@@ -77,16 +128,14 @@ public class FacebookDeeplinksPlugin implements FlutterPlugin, MethodCallHandler
   @Override
   public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
     if (call.method.equals("initFacebookDeeplinks")) {
-      if (url != null) {
-        result.success(url);
-      }
+      initFacebookAppLink(result);
     } else {
       result.notImplemented();
     }
   }
 
   @Override
-  public void onListen(Object args, final EventChannel.EventSink events) {
+  public void onListen(Object args, final EventSink events) {
     linksReceiver = createChangeReceiver(events);
   }
 
@@ -95,24 +144,20 @@ public class FacebookDeeplinksPlugin implements FlutterPlugin, MethodCallHandler
     linksReceiver = null;
   }
 
-  // @Override
-  // protected void onCreate(Bundle savedInstanceState) {
-  
-  // }
-
   @Override
-  public boolean onNewIntent(Intent intent){
-    if(intent.getAction() == android.content.Intent.ACTION_VIEW && linksReceiver != null) {
+  public boolean onNewIntent(Intent intent) {
+    Log.d("FacebookDeeplinks", "onNewIntent");
+    Log.d("FacebookDeeplinks", intent.getAction());
+    if (linksReceiver != null) {
       linksReceiver.onReceive(context, intent);
     }
-    return false;
+    if (intent.getAction() == Intent.ACTION_VIEW && linksReceiver != null) {
+      linksReceiver.onReceive(context, intent);
+    }
+    return true;
   }
 
-  @Override
-  public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
-  }
-
-  private BroadcastReceiver createChangeReceiver(final EventChannel.EventSink events) {
+  private BroadcastReceiver createChangeReceiver(final EventSink events) {
     return new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
