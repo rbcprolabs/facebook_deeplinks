@@ -32,9 +32,11 @@ class FacebookDeeplinks {
 
   Stream<String> get onDeeplinkReceived {
     if (_onDeeplinkReceived == null) {
-      _onDeeplinkReceived = _eventChannel
-          .receiveBroadcastStream()
-          .map((dynamic event) => event.toString());
+      _onDeeplinkReceived =
+          _eventChannel.receiveBroadcastStream().map((dynamic event) {
+        print('URI: ${event.toString()}');
+        return event.toString();
+      });
     }
 
     return _onDeeplinkReceived;
