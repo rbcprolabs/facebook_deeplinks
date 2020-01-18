@@ -7,7 +7,7 @@ let EVENTS_CHANNEL = "ru.proteye/facebook_deeplinks/events"
 
 public class SwiftFacebookDeeplinksPlugin: NSObject, FlutterPlugin, FlutterStreamHandler {
   var _eventSink: FlutterEventSink?
-  
+  var _initialUrl: String = ""
   // links will be added to this queue until the sink is ready to process them
   var _queuedLinks = [String]()
   
@@ -25,14 +25,15 @@ public class SwiftFacebookDeeplinksPlugin: NSObject, FlutterPlugin, FlutterStrea
 
   public func application(
     _ application: UIApplication,
-    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]
   ) -> Bool {
+    if let url = launchOptions[.url] as? URL {
+      _initialUrl = url.absoluteString
+      self.handleLink(url.absoluteString)
+    }
+
     Settings.isAutoInitEnabled = true
     ApplicationDelegate.initializeSDK(nil)
-    print("START APP!!!")
-    if let url = launchOptions?[.url] as? URL {
-      handleLink(url.absoluteString)
-    }
     AppLinkUtility.fetchDeferredAppLink { (url, error) in
       if let error = error {
         print("Received error while fetching deferred app link %@", error)
@@ -50,23 +51,14 @@ public class SwiftFacebookDeeplinksPlugin: NSObject, FlutterPlugin, FlutterStrea
   }
 
   public func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-    return handleLink(url.absoluteString)
-  }
-
-  public func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
-    if (userActivity.activityType == NSUserActivityTypeBrowsingWeb) {
-      if let url = userActivity.webpageURL as URL? {
-        handleLink(url.absoluteString)
-      }
-      return true
-    }
-    return false
+    return self.handleLink(url.absoluteString)
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    guard call.method == "initFacebookDeeplinks" else {
+    if call.method == "initialUrl" {
+      result(_initialUrl)
+    } else {
       result(FlutterMethodNotImplemented)
-      return
     }
   }
 
@@ -76,12 +68,12 @@ public class SwiftFacebookDeeplinksPlugin: NSObject, FlutterPlugin, FlutterStrea
     _queuedLinks.removeAll()
     return nil
   }
-  
+
   public func onCancel(withArguments arguments: Any?) -> FlutterError? {
     _eventSink = nil
     return nil
   }
-  
+
   private func handleLink(_ link: String) -> Bool {
     guard let eventSink = _eventSink else {
       _queuedLinks.append(link)

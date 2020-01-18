@@ -24,8 +24,9 @@ class _MyAppState extends State<MyApp> {
   Future<void> initPlatformState() async {
     String deeplinkUrl;
 
-    deeplinkUrl = await FacebookDeeplinks().initFacebookDeeplinks();
-    FacebookDeeplinks().onDeeplinkReceived.listen(_onRedirected);
+    var facebookDeeplinks = FacebookDeeplinks();
+    facebookDeeplinks.onDeeplinkReceived.listen(_onRedirected);
+    deeplinkUrl = await facebookDeeplinks.getInitialUrl();
 
     if (!mounted) return;
 
@@ -46,8 +47,7 @@ class _MyAppState extends State<MyApp> {
               RaisedButton(
                 child: Text('GET DEEPLINK'),
                 onPressed: () async {
-                  var deeplinkUrl =
-                      await FacebookDeeplinks().initFacebookDeeplinks();
+                  var deeplinkUrl = await FacebookDeeplinks().getInitialUrl();
                   _onRedirected(deeplinkUrl);
                 },
               ),

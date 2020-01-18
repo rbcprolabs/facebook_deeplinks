@@ -7,7 +7,6 @@ class FacebookDeeplinks {
     if (_singleton == null) {
       _singleton = FacebookDeeplinks._();
     }
-
     return _singleton;
   }
 
@@ -22,23 +21,20 @@ class FacebookDeeplinks {
   final EventChannel _eventChannel =
       const EventChannel('ru.proteye/facebook_deeplinks/events');
 
-  Future<String> initFacebookDeeplinks() async {
+  Future<String> getInitialUrl() async {
     try {
-      return _methodChannel.invokeMethod('initFacebookDeeplinks');
+      return _methodChannel.invokeMethod('initialUrl');
     } on PlatformException catch (e) {
-      return "Failed to Invoke: '${e.message}'.";
+      print("Failed to Invoke: '${e.message}'.");
+      return '';
     }
   }
 
   Stream<String> get onDeeplinkReceived {
     if (_onDeeplinkReceived == null) {
       _onDeeplinkReceived =
-          _eventChannel.receiveBroadcastStream().map((dynamic event) {
-        print('URI: ${event.toString()}');
-        return event.toString();
-      });
+          _eventChannel.receiveBroadcastStream().cast<String>();
     }
-
     return _onDeeplinkReceived;
   }
 }
