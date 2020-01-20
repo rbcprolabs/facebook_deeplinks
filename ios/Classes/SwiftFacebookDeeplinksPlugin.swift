@@ -23,7 +23,7 @@ public class SwiftFacebookDeeplinksPlugin: NSObject, FlutterPlugin, FlutterStrea
     registrar.addApplicationDelegate(instance)
   }
 
-  // Doesn't work!
+  // Doesn't work!!!
   func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     if let url = launchOptions?[.url] as? URL {
       _initialUrl = url.absoluteString

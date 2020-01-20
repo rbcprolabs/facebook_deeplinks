@@ -1,12 +1,12 @@
 #import "FacebookDeeplinksPlugin.h"
-#if __has_include(<facebook_deeplinks/facebook_deeplinks-Swift.h>)
-#import <facebook_deeplinks/facebook_deeplinks-Swift.h>
-#else
+// #if __has_include(<facebook_deeplinks/facebook_deeplinks-Swift.h>)
+// #import <facebook_deeplinks/facebook_deeplinks-Swift.h>
+// #else
 // Support project import fallback if the generated compatibility header
 // is not copied when this plugin is created as a library.
 // https://forums.swift.org/t/swift-static-libraries-dont-copy-generated-objective-c-header/19816
-#import "facebook_deeplinks-Swift.h"
-#endif
+// #import "facebook_deeplinks-Swift.h"
+// #endif
 
 // @implementation FacebookDeeplinksPlugin
 // + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
@@ -51,15 +51,12 @@ static id _instance;
     [registrar addApplicationDelegate:instance];
 }
 
-// - (void)setLatestLink:(NSString *)latestLink {
-//   static NSString *key = @"latestLink";
-
-//   [self willChangeValueForKey:key];
-//   _latestLink = [latestLink copy];
-//   [self didChangeValueForKey:key];
-
-//   if (_eventSink) _eventSink(_latestLink);
-// }
+- (instancetype)init {
+    if (self = [super init]) {
+        _queuedLinks = [NSMutableArray array];
+    }
+    return self;
+}
 
 - (BOOL)application:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
@@ -102,8 +99,10 @@ static id _instance;
 - (FlutterError *_Nullable)onListenWithArguments:(id _Nullable)arguments
                                        eventSink:(nonnull FlutterEventSink)eventSink {
     _eventSink = eventSink;
-//    _queuedLinks.forEach({ _eventSink($0) });
-//    _queuedLinks.removeAll();
+    for (NSString *link in _queuedLinks) {
+        _eventSink(link);
+    }
+    [_queuedLinks removeAllObjects];
     return nil;
 }
 
@@ -113,9 +112,6 @@ static id _instance;
 }
 
 - (BOOL)handleLink:(NSString*) link {
-    if (_queuedLinks == nil) {
-        _queuedLinks = [NSMutableArray array];
-    }
     if (_eventSink == nil) {
         if (link) [_queuedLinks addObject: link];
         return NO;
