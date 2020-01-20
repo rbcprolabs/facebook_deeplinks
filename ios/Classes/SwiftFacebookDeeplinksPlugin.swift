@@ -13,21 +13,19 @@ public class SwiftFacebookDeeplinksPlugin: NSObject, FlutterPlugin, FlutterStrea
   
   public static func register(with registrar: FlutterPluginRegistrar) {
     let instance = SwiftFacebookDeeplinksPlugin()
-    
+
     let channel = FlutterMethodChannel(name: MESSAGES_CHANNEL, binaryMessenger: registrar.messenger())
     registrar.addMethodCallDelegate(instance, channel: channel)
-    
+
     let streamChannel = FlutterEventChannel(name: EVENTS_CHANNEL, binaryMessenger: registrar.messenger())
     streamChannel.setStreamHandler(instance)
-    
+
     registrar.addApplicationDelegate(instance)
   }
 
-  public func application(
-    _ application: UIApplication,
-    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]
-  ) -> Bool {
-    if let url = launchOptions[.url] as? URL {
+  // Doesn't work!
+  func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    if let url = launchOptions?[.url] as? URL {
       _initialUrl = url.absoluteString
       self.handleLink(url.absoluteString)
     }
