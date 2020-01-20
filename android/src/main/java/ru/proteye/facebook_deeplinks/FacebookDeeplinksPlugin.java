@@ -21,7 +21,7 @@ import com.facebook.FacebookSdk;
 import com.facebook.applinks.AppLinkData;
 
 /** FacebookDeeplinksPlugin */
-public class FacebookDeeplinksPlugin implements FlutterPlugin, MethodCallHandler, StreamHandler, PluginRegistry.NewIntentListener {
+public class FacebookDeeplinksPlugin implements FlutterPlugin, ActivityAware, MethodCallHandler, StreamHandler, PluginRegistry.NewIntentListener {
   private static final String MESSAGES_CHANNEL = "ru.proteye/facebook_deeplinks/channel";
   private static final String EVENTS_CHANNEL = "ru.proteye/facebook_deeplinks/events";
 
@@ -56,6 +56,12 @@ public class FacebookDeeplinksPlugin implements FlutterPlugin, MethodCallHandler
   public static void registerWith(Registrar registrar) {
     FacebookDeeplinksPlugin plugin = new FacebookDeeplinksPlugin();
     plugin.setupChannels(registrar.messenger(), registrar.context());
+    registrar.addNewIntentListener(plugin);
+  }
+
+  @Override
+  public void onAttachedToActivity(ActivityPluginBinding activityPluginBinding) {
+    activityPluginBinding.addOnNewIntentListener(this);
   }
 
   private void setupChannels(BinaryMessenger messenger, Context context) {
