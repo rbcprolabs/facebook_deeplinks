@@ -18,8 +18,7 @@ void main() {
     channel.setMockMethodCallHandler(null);
   });
 
-  test('initFacebookDeeplinks', () async {
-    expect(await FacebookDeeplinks().initFacebookDeeplinks(),
-        'https://example.com');
+  test('getInitialUrl', () async {
+    expect(await FacebookDeeplinks().getInitialUrl(), 'https://example.com');
   });
 }
