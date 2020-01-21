@@ -3,11 +3,40 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 
 class FacebookDeeplinks {
-  static const MethodChannel _channel =
-      const MethodChannel('facebook_deeplinks');
+  factory FacebookDeeplinks() {
+    if (_singleton == null) {
+      _singleton = FacebookDeeplinks._();
+    }
+    return _singleton;
+  }
 
-  static Future<String> get platformVersion async {
-    final String version = await _channel.invokeMethod('getPlatformVersion');
-    return version;
+  FacebookDeeplinks._();
+
+  static FacebookDeeplinks _singleton;
+
+  Stream<String> _onDeeplinkReceived;
+
+  static const MethodChannel _methodChannel =
+      const MethodChannel('ru.proteye/facebook_deeplinks/channel');
+  final EventChannel _eventChannel =
+      const EventChannel('ru.proteye/facebook_deeplinks/events');
+
+  /// Gets the initial URL.
+  Future<String> getInitialUrl() async {
+    try {
+      return _methodChannel.invokeMethod('initialUrl');
+    } on PlatformException catch (e) {
+      print("Failed to Invoke: '${e.message}'.");
+      return '';
+    }
+  }
+
+  /// Stream of changes by URL.
+  Stream<String> get onDeeplinkReceived {
+    if (_onDeeplinkReceived == null) {
+      _onDeeplinkReceived =
+          _eventChannel.receiveBroadcastStream().cast<String>();
+    }
+    return _onDeeplinkReceived;
   }
 }
