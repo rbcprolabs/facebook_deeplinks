@@ -6,7 +6,7 @@ A flutter plugin to get facebook deeplinks and transferring them to the flutter 
 
 ```yaml
 dependencies:
-  facebook_deeplinks: ^0.0.1
+  facebook_deeplinks: ^0.1.0
 ```
 
 ## Permission

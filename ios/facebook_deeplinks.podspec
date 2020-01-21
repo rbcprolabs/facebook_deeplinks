@@ -4,14 +4,14 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'facebook_deeplinks'
-  s.version          = '0.0.1'
-  s.summary          = 'A new flutter plugin project.'
+  s.version          = '0.1.0'
+  s.summary          = 'A flutter plugin to get facebook deeplinks and transferring them to the flutter application.'
   s.description      = <<-DESC
-A new flutter plugin project.
+A flutter plugin to get facebook deeplinks and transferring them to the flutter application.
                        DESC
-  s.homepage         = 'http://example.com'
+  s.homepage         = 'https://github.com/proteye/facebook_deeplinks'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
+  s.author           = { 'Ramil Zaynetdinov' => 'me@proteye.ru' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
