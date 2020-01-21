@@ -3,7 +3,6 @@ package ru.proteye.facebook_deeplinks;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
@@ -59,8 +58,8 @@ public class FacebookDeeplinksPlugin implements FlutterPlugin, ActivityAware, Me
   // depending on the user's project. onAttachedToEngine or registerWith must both be defined
   // in the same class.
   public static void registerWith(Registrar registrar) {
-    this.registrar = registrar;
     FacebookDeeplinksPlugin plugin = new FacebookDeeplinksPlugin();
+    plugin.registrar = registrar;
     plugin.setupChannels(registrar.messenger(), registrar.context());
     registrar.addNewIntentListener(plugin);
   }
@@ -69,13 +68,18 @@ public class FacebookDeeplinksPlugin implements FlutterPlugin, ActivityAware, Me
   public void onAttachedToActivity(ActivityPluginBinding binding) {
     activityPluginBinding = binding;
     binding.addOnNewIntentListener(this);
+    initFacebookAppLink();
   }
 
   @Override
   public void onDetachedFromActivityForConfigChanges() {}
 
   @Override
-  public void onReattachedToActivityForConfigChanges(ActivityPluginBinding activityPluginBinding) {}
+  public void onReattachedToActivityForConfigChanges(ActivityPluginBinding binding) {
+    activityPluginBinding.removeOnNewIntentListener(this);
+    activityPluginBinding = binding;
+    binding.addOnNewIntentListener(this);
+  }
 
   @Override
   public void onDetachedFromActivity() {}
@@ -88,7 +92,9 @@ public class FacebookDeeplinksPlugin implements FlutterPlugin, ActivityAware, Me
     eventChannel = new EventChannel(messenger, EVENTS_CHANNEL);
     eventChannel.setStreamHandler(this);
 
-    initFacebookAppLink();
+    if (registrar != null) {
+      initFacebookAppLink();
+    }
   }
 
   private void initFacebookAppLink() {
@@ -115,12 +121,12 @@ public class FacebookDeeplinksPlugin implements FlutterPlugin, ActivityAware, Me
   }
 
   private Intent getIntent() {
-    if (activityPluginBinding != null) {
-      return activityPluginBinding.getActivity().getIntent();
+    if (this.activityPluginBinding != null) {
+      return this.activityPluginBinding.getActivity().getIntent();
     }
 
-    if (registrar != null) {
-      return registrar.activity().getIntent();
+    if (this.registrar != null) {
+      return this.registrar.activity().getIntent();
     }
 
     return null;
@@ -158,7 +164,7 @@ public class FacebookDeeplinksPlugin implements FlutterPlugin, ActivityAware, Me
   @Override
   public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
     if (call.method.equals("initialUrl")) {
-      result(initialUrl);
+      result.success(initialUrl);
     } else {
       result.notImplemented();
     }
