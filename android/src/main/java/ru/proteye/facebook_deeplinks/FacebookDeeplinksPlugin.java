@@ -84,7 +84,7 @@ public class FacebookDeeplinksPlugin implements FlutterPlugin, ActivityAware, Me
     eventChannel.setStreamHandler(this);
   }
 
-  private void initFacebookAppLink(@NonNull Result result) {
+  private void initialFacebookAppLink(@NonNull Result result) {
     final Result resultDelegate = result;
     final Handler mainHandler = new Handler(context.getMainLooper());
 
@@ -115,8 +115,8 @@ public class FacebookDeeplinksPlugin implements FlutterPlugin, ActivityAware, Me
 
   @Override
   public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
-    if (call.method.equals("initFacebookDeeplinks")) {
-      initFacebookAppLink(result);
+    if (call.method.equals("initialUrl")) {
+      initialFacebookAppLink(result);
     } else {
       result.notImplemented();
     }
