@@ -21,6 +21,7 @@ class FacebookDeeplinks {
   final EventChannel _eventChannel =
       const EventChannel('ru.proteye/facebook_deeplinks/events');
 
+  /// Gets the initial URL.
   Future<String> getInitialUrl() async {
     try {
       return _methodChannel.invokeMethod('initialUrl');
@@ -30,6 +31,7 @@ class FacebookDeeplinks {
     }
   }
 
+  /// Stream of changes by URL.
   Stream<String> get onDeeplinkReceived {
     if (_onDeeplinkReceived == null) {
       _onDeeplinkReceived =
