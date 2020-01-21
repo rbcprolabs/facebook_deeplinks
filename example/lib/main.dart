@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:facebook_deeplinks/facebook_deeplinks.dart';
 
 // Example deeplink: fb1900783610066589://test
+// Android command: $ANDROID_HOME/platform-tools/adb shell 'am start' -a android.intent.action.VIEW -c android.intent.category.BROWSABLE -d "fb1900783610066589://test"
+// iOS command: /usr/bin/xcrun simctl openurl booted "fb1900783610066589://test"
 
 void main() => runApp(MyApp());
 
@@ -45,7 +47,7 @@ class _MyAppState extends State<MyApp> {
             children: <Widget>[
               Text('Deeplink URL: $_deeplinkUrl'),
               RaisedButton(
-                child: Text('GET DEEPLINK'),
+                child: Text('GET INITIAL URL'),
                 onPressed: () async {
                   var deeplinkUrl = await FacebookDeeplinks().getInitialUrl();
                   _onRedirected(deeplinkUrl);

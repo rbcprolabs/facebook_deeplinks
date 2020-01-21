@@ -62,6 +62,7 @@ public class FacebookDeeplinksPlugin implements FlutterPlugin, ActivityAware, Me
     plugin.registrar = registrar;
     plugin.setupChannels(registrar.messenger(), registrar.context());
     registrar.addNewIntentListener(plugin);
+    plugin.initFacebookAppLink();
   }
 
   @Override
@@ -91,10 +92,6 @@ public class FacebookDeeplinksPlugin implements FlutterPlugin, ActivityAware, Me
 
     eventChannel = new EventChannel(messenger, EVENTS_CHANNEL);
     eventChannel.setStreamHandler(this);
-
-    if (registrar != null) {
-      initFacebookAppLink();
-    }
   }
 
   private void initFacebookAppLink() {
@@ -132,35 +129,6 @@ public class FacebookDeeplinksPlugin implements FlutterPlugin, ActivityAware, Me
     return null;
   }
 
-  // private void initFacebookAppLink(@NonNull Result result) {
-  //   final Result resultDelegate = result;
-  //   final Handler mainHandler = new Handler(context.getMainLooper());
-
-  //   FacebookSdk.setAutoInitEnabled(true);
-  //   FacebookSdk.fullyInitialize();
-  //   AppLinkData.fetchDeferredAppLinkData(context, 
-  //     new AppLinkData.CompletionHandler() {
-  //       @Override
-  //       public void onDeferredAppLinkDataFetched(AppLinkData appLinkData) {
-  //         if (appLinkData == null) {
-  //           return;
-  //         }
-
-  //         url = appLinkData.getTargetUri().toString();
-  //         Runnable myRunnable = new Runnable() {
-  //           @Override
-  //           public void run() {
-  //             if (resultDelegate != null) {
-  //               resultDelegate.success(url);
-  //             }
-  //           }
-  //         };
-  //         mainHandler.post(myRunnable);
-  //       }
-  //     }
-  //   );
-  // }
-
   @Override
   public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
     if (call.method.equals("initialUrl")) {
@@ -186,8 +154,8 @@ public class FacebookDeeplinksPlugin implements FlutterPlugin, ActivityAware, Me
 
   @Override
   public void onCancel(Object args) {
-    events = null;
     linksReceiver = null;
+    events = null;
   }
 
   private boolean handleLink(String link) {
@@ -207,10 +175,10 @@ public class FacebookDeeplinksPlugin implements FlutterPlugin, ActivityAware, Me
           return;
         }
 
-        String dataString = intent.getDataString();
+        String url = intent.getDataString();
 
-        if (dataString != null) {
-          events.success(dataString);
+        if (url != null) {
+          events.success(url);
         }
       }
     };
