@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.description      = <<-DESC
 A flutter plugin to get facebook deeplinks and transferring them to the flutter application.
                        DESC
-  s.homepage         = 'https://github.com/proteye/facebook_deeplinks'
+  s.homepage         = 'https://github.com/rbcprolabs/facebook_deeplinks'
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'Ramil Zaynetdinov' => 'me@proteye.ru' }
   s.source           = { :path => '.' }
